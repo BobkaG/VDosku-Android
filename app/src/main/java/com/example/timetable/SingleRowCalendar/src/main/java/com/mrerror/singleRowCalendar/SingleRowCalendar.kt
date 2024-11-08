@@ -1,5 +1,7 @@
 package com.mrerror.singleRowCalendar
 
+import android.annotation.SuppressLint
+import android.widget.DatePicker
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Indication
@@ -13,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,15 +48,19 @@ import com.mrerror.singleRowCalendar.DateUtils.getFutureDates
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue601
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Grey500
+import java.text.SimpleDateFormat
 import java.util.*
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerModal(
     onDateSelected: (Long?) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    selectedDate: Date
 ) {
-    val datePickerState = rememberDatePickerState()
+    // Синхронизируем начальное состояние DatePicker с выбранной датой
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDate.time)
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
@@ -71,14 +78,22 @@ fun DatePickerModal(
             }
         }
     ) {
-        DatePicker(state = datePickerState)
+        DatePicker(
+            state = datePickerState,
+            showModeToggle = false,
+            colors = DatePickerDefaults.colors(
+                selectedDayContainerColor = Blue600,
+                todayContentColor = Blue600,
+                todayDateBorderColor = Blue600
+            )
+        )
     }
 }
 
 @Composable
 fun SingleRowCalendar(
     modifier: Modifier = Modifier,
-    selectedDayBackgroundColor: Color = SingleRowCalendarDefaults.Blue600,
+    selectedDayBackgroundColor: Color = Blue600,
     selectedDayTextColor: Color = Color.White,
     dayNumTextColor: Color = Color.Black,
     dayTextColor: Color = Grey500,
@@ -88,14 +103,15 @@ fun SingleRowCalendar(
     @DrawableRes nextDrawableRes: Int = R.drawable.baseline_keyboard_double_arrow_right_24,
     @DrawableRes prevDrawableRes: Int = R.drawable.baseline_keyboard_double_arrow_left_24,
     onSelectedDayChange: (Date) -> Unit,
-    ) {
+) {
     val calendar = Calendar.getInstance(Locale.getDefault())
     var selectedDate by rememberSaveable { mutableStateOf(calendar.time) }
-    calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+    calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY) // Инициализируем с понедельника
     var currentDate by rememberSaveable { mutableStateOf(calendar.time) }
-    Column(modifier) {
 
-        WeekHeader(firstDayDate = currentDate,
+    Column(modifier) {
+        WeekHeader(
+            firstDayDate = currentDate,
             iconsTintColor = iconsTintColor,
             headTextColor = headTextColor,
             headTextStyle = headTextStyle,
@@ -103,18 +119,28 @@ fun SingleRowCalendar(
             prevDrawableRes = prevDrawableRes,
             onNextWeekClicked = {
                 calendar.time = it
-                currentDate = it
+                currentDate = calendar.time
                 selectedDate = currentDate
                 onSelectedDayChange(selectedDate)
             },
             onPrevWeekClicked = {
                 calendar.time = it
-                currentDate = it
+                currentDate = calendar.time
                 selectedDate = currentDate
                 onSelectedDayChange(selectedDate)
-            }, selectedDate = selectedDate)
+            },
+            selectedDate = selectedDate,
+            onSelectDay = { day ->
+                selectedDate = day
+                calendar.time = day
+                calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY) // Устанавливаем текущую дату на понедельник
+                currentDate = calendar.time
+                onSelectedDayChange(selectedDate)
+            }
+        )
 
-        WeekDaysHeader(selectedDayBackgroundColor = selectedDayBackgroundColor,
+        WeekDaysHeader(
+            selectedDayBackgroundColor = selectedDayBackgroundColor,
             selectedDayTextColor = selectedDayTextColor,
             dayNumTextColor = dayNumTextColor,
             dayTextColor = dayTextColor,
@@ -124,9 +150,11 @@ fun SingleRowCalendar(
                 calendar.time = day
                 selectedDate = day
                 onSelectedDayChange(day)
-            })
+            }
+        )
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -140,6 +168,7 @@ fun WeekHeader(
     @DrawableRes prevDrawableRes: Int,
     onNextWeekClicked: (firstDayDate: Date) -> Unit,
     onPrevWeekClicked: (firstDayDate: Date) -> Unit,
+    onSelectDay: (Date) -> Unit,
     selectedDate: Date,
 ) {
 
@@ -165,12 +194,17 @@ fun WeekHeader(
                     .shadow(elevation = 4.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .background(Color.White)
-
             ) {
-                DatePicker(
-                    state = datePickerState,
-                    showModeToggle = false,
-                    colors = DatePickerDefaults.colors(selectedDayContainerColor = Blue600, todayContentColor = Blue600, todayDateBorderColor = Blue600)
+                DatePickerModal(
+                    selectedDate = selectedDate,  // Передаем выбранную дату для синхронизации
+                    onDateSelected = {
+                        it?.let { selectedMillis ->
+                            val selected = Date(selectedMillis)
+                            onSelectDay(selected)  // Обновляем выбранную дату
+                        }
+                        showDatePicker = false
+                    },
+                    onDismiss = { showDatePicker = false }
                 )
             }
         }
@@ -183,7 +217,6 @@ fun WeekHeader(
             .padding(top = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-
         Image(
             modifier = Modifier.clickable {
                 val c = Calendar.getInstance()
@@ -196,16 +229,22 @@ fun WeekHeader(
             contentDescription = "",
             colorFilter = ColorFilter.tint(iconsTintColor)
         )
-        Column(modifier = Modifier.width(150.dp).height(35.dp).clip(
-            RoundedCornerShape(10.dp)).background(color = Blue601)
-            .clickable {
-                showDatePicker = !showDatePicker
-            },
-            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center)
-        {
+
+        Column(
+            modifier = Modifier
+                .width(150.dp)
+                .height(35.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(color = Blue601)
+                .clickable {
+                    showDatePicker = !showDatePicker
+                },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Text(
                 textAlign = TextAlign.Center,
-                text = "$dayName $monthName $yearName",
+                text = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()).format(selectedDate),
                 style = MaterialTheme.typography.titleLarge,
                 fontSize = 16.sp,
                 color = headTextColor,
@@ -215,8 +254,8 @@ fun WeekHeader(
         Image(
             modifier = Modifier.clickable {
                 val c = Calendar.getInstance()
-                c.time = weekFinalDate
-                c.add(Calendar.DATE, 1)
+                c.time = firstDayDate
+                c.add(Calendar.DATE, 7)
                 val nextWeekFirstDay = c.time
                 onNextWeekClicked(nextWeekFirstDay)
             },
@@ -226,6 +265,7 @@ fun WeekHeader(
         )
     }
 }
+
 
 @Composable
 fun WeekDaysHeader(
@@ -244,19 +284,19 @@ fun WeekDaysHeader(
 
     Row(
         modifier
-            .fillMaxWidth().padding(15.dp),
+            .fillMaxWidth()
+            .padding(15.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
 
     ) {
         for (day in weekFinalDays) {
             Column(
                 modifier = (if (selectedDate == day) Modifier
-                    .shadow(10.dp,RoundedCornerShape(10.dp))
+                    .shadow(10.dp, RoundedCornerShape(10.dp))
                     .clip(RoundedCornerShape(10.dp))
                     .background(color = Blue600)
-
                 else Modifier
-                    .shadow(10.dp,RoundedCornerShape(10.dp))
+                    .shadow(10.dp, RoundedCornerShape(10.dp))
                     .clip(RoundedCornerShape(10.dp))
                     .background(color = Color.White)
                         )
