@@ -41,9 +41,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TimetableTheme {
-
-                    Show()
-
+                Show()
         }
     }
 }}
