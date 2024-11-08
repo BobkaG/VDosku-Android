@@ -17,7 +17,7 @@ object DateUtils {
      * @return day abbreviation, for example Fri, Thu, Mon, etc...
      */
     fun getDay3LettersName(date: Date): String =
-        SimpleDateFormat("EE", Locale.getDefault()).format(date)
+        SimpleDateFormat("EE", Locale.getDefault()).format(date).replaceFirstChar { it.uppercase() }
 
     /**
      * @param date - which we want 1 letter abbreviation from
