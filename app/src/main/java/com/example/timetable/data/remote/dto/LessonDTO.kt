@@ -1,6 +1,6 @@
 package com.example.timetable.data.remote.dto
 
-data class Lesson(
+data class LessonDTO(
     val audience: String,
     val end: String,
     val id: Int,

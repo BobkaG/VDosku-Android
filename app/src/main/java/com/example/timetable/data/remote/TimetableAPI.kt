@@ -1,9 +1,11 @@
 package com.example.timetable.data.remote
 
+import com.example.timetable.data.remote.dto.TimetableDTO
 import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface TimetableAPI {
 
     @GET("/api/v1/universities/group_timetable/{code}")
-    suspend fun getGroupTimetable()
+    suspend fun getGroupTimetableByCode(@Path("code") code: String) : TimetableDTO
 }
