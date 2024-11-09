@@ -15,24 +15,18 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.timetable.Lesson
+import com.example.timetable.LessonExample
 import com.example.timetable.R
-import com.mrerror.singleRowCalendar.SingleRowCalendar
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
-import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue601
 
 @Composable
 fun LessonCard(
-    key: Lesson,
+    key: LessonExample,
     modifier: Modifier = Modifier
 ) {
     Card(

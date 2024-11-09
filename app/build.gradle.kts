@@ -41,7 +41,20 @@ android {
 }
 
 dependencies {
-    //implementation(libs.composesinglerowcalender)
+    implementation("androidx.datastore:datastore-preferences-core:1.1.1")
+    implementation("androidx.datastore:datastore-core:1.1.1")
+    // optional - RxJava2 support
+    implementation("androidx.datastore:datastore-preferences-rxjava2:1.1.1")
+
+    // optional - RxJava3 support
+    implementation("androidx.datastore:datastore-preferences-rxjava3:1.1.1")
+    // optional - RxJava2 support
+    implementation("androidx.datastore:datastore-rxjava2:1.1.1")
+
+    // optional - RxJava3 support
+    implementation("androidx.datastore:datastore-rxjava3:1.1.1")
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

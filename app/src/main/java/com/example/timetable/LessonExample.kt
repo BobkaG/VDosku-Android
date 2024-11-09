@@ -1,6 +1,6 @@
 package com.example.timetable
 
-class Lesson(
+class LessonExample(
     val start : String,
     val end : String,
     val name: String,
