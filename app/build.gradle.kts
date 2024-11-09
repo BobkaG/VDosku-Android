@@ -1,7 +1,10 @@
+import org.gradle.kotlin.dsl.android
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("kotlin-kapt")
 }
 
 android {
@@ -54,6 +57,9 @@ dependencies {
     // optional - RxJava3 support
     implementation("androidx.datastore:datastore-rxjava3:1.1.1")
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+
+    implementation("com.google.dagger:hilt-android:2.41")
+    kapt("com.google.dagger:hilt-compiler:2.41")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
