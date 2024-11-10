@@ -94,7 +94,8 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
     implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2") // или используйте актуальную версию
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") // Убедитесь, что используете актуальную версию
-
+    implementation ("io.coil-kt:coil-compose:2.1.0")
+    implementation ("io.coil-kt:coil-gif:2.1.0")
 }
 
 kapt {
