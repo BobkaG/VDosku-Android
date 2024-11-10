@@ -3,21 +3,33 @@ package com.example.timetable.screens
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import com.example.testproj.LessonCard
 import com.example.timetable.LessonExample
+import com.example.timetable.data.domain.model.Day
+import com.example.timetable.data.domain.model.Lesson
+import com.example.timetable.presentation.TimetableViewModel
 import com.mrerror.singleRowCalendar.SingleRowCalendar
 import java.util.Date
 
+
 @Composable
-fun ViewLessons()
+fun ViewLessons(
+    viewModel: TimetableViewModel = hiltViewModel()
+)
 {
-    val lessons = mapOf(
+    val state = viewModel.state.value
+    /*val lessons = mapOf(
         0 to mapOf(
             0 to listOf(
                 LessonExample("12:00","21:00","Пн","216*","Палехова О.И."),
@@ -90,7 +102,7 @@ fun ViewLessons()
                 LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
                 LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
             ),)
-    )
+    )*/
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -103,8 +115,8 @@ fun ViewLessons()
             },
             selectedDayBackgroundColor = Color(0xFF8C2AC8)
         )
-
-            DayLessons(date = day.value, lessons = lessons[0])
+            if (viewModel.state.value.timetable.isNotEmpty())
+                DayLessons(date = day.value, days = state.timetable)
         }
 
     }
@@ -113,16 +125,31 @@ fun ViewLessons()
 
 
 @Composable
-fun DayLessons(date: Date, lessons: Map<Int,List<LessonExample>>?) {
+fun DayLessons(date: Date, days: List<Day>) {
+    val formatday : Int
+    if (date.day == 0) formatday = 6
+    else formatday = date.day - 1
 
-    val day : Int
-    if (date.day == 0) day = 6
-    else day = date.day - 1
-    Column(modifier = Modifier.verticalScroll(state = ScrollState(1))) {
-        for (lesson in lessons?.get(day)!!) {
-            LessonCard(lesson)
+    val filtered = days.filter { it.day == formatday}
+    if (filtered.isNotEmpty()){
+        val lessons = filtered.first().lessons
+        LazyColumn {
+            items(lessons){ lesson ->
+                LessonCard(lesson)
+            }
         }
     }
+    else
+    {
+        Text(text = "Пар нет")
+    }
+
+
+/*    Column(modifier = Modifier.verticalScroll(state = ScrollState(1))) {
+        for (lesson in lessons.get(day)) {
+            LessonCard(lesson)
+        }
+    }*/
 
 
 }

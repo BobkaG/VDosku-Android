@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
+    id ("dagger.hilt.android.plugin") // Это нужно добавить
+    kotlin("plugin.serialization") version "1.9.10" // Замените на версию вашего Kotlin
 
 }
 
@@ -60,8 +62,10 @@ dependencies {
     implementation("androidx.datastore:datastore-rxjava3:1.1.1")
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
 
-    implementation("com.google.dagger:hilt-android:2.52")
-    kapt("com.google.dagger:hilt-compiler:2.52")
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation (libs.androidx.hilt.navigation.compose)
+
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")  // Замените 2.9.0 на нужную версию
 
 
@@ -87,5 +91,12 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation ("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2") // или используйте актуальную версию
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") // Убедитесь, что используете актуальную версию
 
+}
+
+kapt {
+    correctErrorTypes = true
 }

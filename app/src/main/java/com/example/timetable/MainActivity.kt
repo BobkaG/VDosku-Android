@@ -39,10 +39,11 @@ import com.example.timetable.screens.ViewLogin
 import com.example.timetable.screens.ViewProfile
 import com.example.timetable.ui.theme.TimetableTheme
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-
+@AndroidEntryPoint
 class MainActivity() : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +55,7 @@ class MainActivity() : ComponentActivity() {
         }
     }
 }}
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun Show() {

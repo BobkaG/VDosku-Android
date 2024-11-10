@@ -1,5 +1,6 @@
 package com.example.timetable.data.domain.model
 
+
 data class Lesson(
     val audience: String,
     val end: String,

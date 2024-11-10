@@ -20,13 +20,27 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.timetable.LessonExample
 import com.example.timetable.R
+import com.example.timetable.data.domain.model.Lesson
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
+import java.text.SimpleDateFormat
+import java.util.Locale
+
+
+fun formatTime(time: String): String {
+    val inputFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    return try {
+        val date = inputFormat.parse(time)
+        outputFormat.format(date ?: "")
+    } catch (e: Exception) {
+        time // возвращает оригинальную строку в случае ошибки
+    }
+}
 
 @Composable
 fun LessonCard(
-    key: LessonExample,
+    lesson: Lesson,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -58,7 +72,7 @@ fun LessonCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = key.start,
+                    text = formatTime(lesson.start),
                     style = MaterialTheme.typography.titleMedium,
                     fontSize = 12.sp,
                     color = Color.Black,
@@ -77,28 +91,8 @@ fun LessonCard(
                             ), strokeWidth = 3f)
                         },
                 )
-/*                                                Text(
-                                                    text = "",
-                                                    fontSize = 13.sp,
-                                                    color = Color.Black,
-                                                    modifier = Modifier
-                                                        .align(Alignment.Start)
-                                                        .padding(horizontal = 15.dp)
-                                                        .drawBehind {
-                                                            drawCircle(
-                                                                color = Blue600, radius = 25f
-                                                            )
-
-
-                                                            drawLine(color = Blue600,this.size.center.minus(
-                                                                Offset(0f,200f)
-                                                            ),this.size.center.plus(
-                                                                Offset(0f,200f)
-                                                            ), strokeWidth = 2f)
-                                                        }
-                                                )*/
                 Text(
-                    text = key.end,
+                    text = formatTime(lesson.end),
                     style = MaterialTheme.typography.titleMedium,
                     fontSize = 12.sp,
                     color = Color.Black
@@ -117,14 +111,8 @@ fun LessonCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 )
                 {
-/*                    Image(
-                        painter = painterResource(id = R.drawable.lesson),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(13.dp),
-                    )*/
                     Text(
-                        text = key.name,//lesson.title,
+                        text = if (lesson.title.isNullOrBlank()) "" else lesson.title,//lesson.title,
                         style = MaterialTheme.typography.titleLarge,
                         fontSize = 16.sp,
                         fontWeight = FontWeight(1000),
@@ -139,16 +127,10 @@ fun LessonCard(
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-/*                    Image(
-                        painter = painterResource(id = R.drawable.prepod1),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(width = 18.dp, height = 18.dp),
-                        contentScale = ContentScale.Crop
-                    )*/
+
 
                     Text(
-                        text = key.teacher,//lesson.teachers[0].name,
+                        text = if (lesson.teacher.isNullOrBlank()) "" else lesson.teacher,//lesson.teachers[0].name,
                         style = MaterialTheme.typography.titleMedium,
                         fontSize = 11.sp,
                         color = Color.DarkGray,
@@ -160,14 +142,9 @@ fun LessonCard(
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-/*                    Image(
-                        painter = painterResource(id = R.drawable.auditory),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(15.dp),
-                    )*/
+
                     Text(
-                        text = key.auditory,//lesson.classroom,
+                        text = if (lesson.audience.isNullOrBlank()) "" else lesson.audience,//lesson.classroom,
                         style = MaterialTheme.typography.titleMedium,
                         fontSize = 11.sp,
                         color = Color.DarkGray,
