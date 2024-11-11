@@ -82,8 +82,6 @@ fun LessonCard(
                     contentDescription = null,
                     modifier = Modifier
                         .size(20.dp).drawBehind {
-
-
                             drawLine(color = Blue600,this.size.center.minus(
                                 Offset(-70f,200f)
                             ),this.size.center.plus(

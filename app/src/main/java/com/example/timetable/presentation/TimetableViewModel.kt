@@ -5,11 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.timetable.User
+import com.example.timetable.data.User
 import com.example.timetable.data.Resource
-import com.example.timetable.data.domain.model.Day
-import com.example.timetable.data.domain.model.University
-import com.example.timetable.data.domain.model.UniversityDetail
 import com.example.timetable.data.domain.use_case.GetTimetableUseCase
 import com.example.timetable.data.domain.use_case.GetUniversitiesUseCase
 import com.example.timetable.data.domain.use_case.GetUniversityDetailUseCase
@@ -31,56 +28,7 @@ class TimetableViewModel @Inject constructor(
 
     init {
         getTimetable(User.userGroup, User.idUniversity)
-        //savedStateHandle.get<String>(Constants.PARAM_GROUP)?.let{code -> getTimetable("О713Б")}
     }
-
-    /*private fun getTimetable(code: String, id: Long)
-    {
-        val newstate = TimetableState()
-        getUniversitiesUseCase().onEach { result ->
-            when(result){
-                is Resource.Success<List<University>> -> {
-                    newstate.universities = result.data?:emptyList()
-                }
-                is Resource.Error<List<University>> -> {
-                    newstate.error = result.message ?: "An unexpected error occured"
-                }
-                is Resource.Loading<List<University>> -> {
-                    newstate.isLoading = true
-                }
-            }
-        }.launchIn(viewModelScope)
-
-        getTimetableUseCase(code).onEach { result ->
-            when(result){
-                is Resource.Success<List<Day>> -> {
-                    newstate.timetable = result.data ?: emptyList()
-                }
-                is Resource.Error<List<Day>> -> {
-                    newstate.error = result.message ?: "An unexpected error occured"
-                }
-                is Resource.Loading<List<Day>> -> {
-                    newstate.isLoading = true
-                }
-            }
-        }.launchIn(viewModelScope)
-
-        getUniversityDetailUseCase(id).onEach { result ->
-            when(result){
-                is Resource.Success<UniversityDetail> -> {
-                    newstate.universityDetail= result.data
-                }
-                is Resource.Error<UniversityDetail> -> {
-                    newstate.error = result.message ?: "An unexpected error occured"
-                }
-                is Resource.Loading<UniversityDetail> -> {
-                    newstate.isLoading = true
-                }
-            }
-        }.launchIn(viewModelScope)
-
-        _state.value = newstate
-    }*/
 
     private fun getTimetable(code: String, id: Long) {
         // Устанавливаем статус загрузки вначале

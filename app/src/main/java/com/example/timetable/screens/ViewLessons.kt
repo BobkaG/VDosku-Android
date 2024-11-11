@@ -32,7 +32,7 @@ import com.example.timetable.presentation.TimetableViewModel
 import com.mrerror.singleRowCalendar.SingleRowCalendar
 import java.util.Date
 import com.example.timetable.R
-import com.example.timetable.User
+import com.example.timetable.data.User
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
 import java.text.SimpleDateFormat
 import java.util.Locale

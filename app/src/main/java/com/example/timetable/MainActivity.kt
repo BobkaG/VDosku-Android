@@ -1,9 +1,7 @@
 package com.example.timetable
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,20 +13,14 @@ import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -40,8 +32,7 @@ import com.example.timetable.screens.ViewProfile
 import com.example.timetable.ui.theme.TimetableTheme
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+
 
 @AndroidEntryPoint
 class MainActivity() : ComponentActivity() {
@@ -59,18 +50,6 @@ class MainActivity() : ComponentActivity() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun Show() {
-    val context = LocalContext.current
-    val ads = AppDataStore(context)
-
-/*    LaunchedEffect(key1 = true) {
-        ads.registerUniversity("БГТУ «ВОЕНМЕХ»")
-        val univ = ads.readUniversity()
-        ads.registerGroup("О713Б")
-        val group = ads.readGroup()
-        Log.e("university = ",univ)
-        Log.e("group = ",group)
-    }*/
-
 
     val navController = rememberNavController()
     val listItems = listOf(

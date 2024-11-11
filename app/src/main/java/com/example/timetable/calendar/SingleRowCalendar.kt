@@ -1,13 +1,8 @@
 package com.mrerror.singleRowCalendar
 
-import android.annotation.SuppressLint
-import android.widget.DatePicker
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -15,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,20 +20,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
@@ -48,7 +35,6 @@ import com.mrerror.singleRowCalendar.DateUtils.getFutureDates
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue601
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Grey500
-import java.nio.file.WatchEvent
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -174,16 +160,7 @@ fun WeekHeader(
     selectedDate: Date,
 ) {
 
-    val dayName = DateUtils.getDayNumber(selectedDate)
-    val monthName = DateUtils.getMonthName(selectedDate)
-    val yearName = DateUtils.getYear(selectedDate)
-    val weekFinalDays = getFutureDates(6, Calendar.getInstance().apply { time = firstDayDate })
-    val weekFinalDate = weekFinalDays.last()
-    val fDayName = DateUtils.getDayNumber(weekFinalDate)
-    val fMonthName = DateUtils.getMonthName(weekFinalDate)
-    val fYearName = DateUtils.getYear2Letters(weekFinalDate)
     var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
 
     if (showDatePicker) {
         Popup(
