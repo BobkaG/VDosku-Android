@@ -6,9 +6,9 @@ import com.example.timetable.data.domain.model.UniversityDetail
 
 
 data class TimetableState(
-    val isLoading: Boolean = false,
-    val timetable: List<Day> = emptyList(),
+    var isLoading: Boolean = false,
+    var timetable: List<Day> = emptyList(),
     var universities: List<University> = emptyList(),
     var universityDetail: UniversityDetail? = null,
-    val error: String = ""
+    var error: String = ""
 )

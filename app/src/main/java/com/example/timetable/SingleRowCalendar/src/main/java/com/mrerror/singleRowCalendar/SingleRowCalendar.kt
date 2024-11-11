@@ -48,6 +48,7 @@ import com.mrerror.singleRowCalendar.DateUtils.getFutureDates
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue601
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Grey500
+import java.nio.file.WatchEvent
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -111,6 +112,7 @@ fun SingleRowCalendar(
 
     Column(modifier) {
         WeekHeader(
+            modifier = Modifier.padding(top = 10.dp),
             firstDayDate = currentDate,
             iconsTintColor = iconsTintColor,
             headTextColor = headTextColor,
@@ -317,34 +319,6 @@ fun WeekDaysHeader(
                     style = MaterialTheme.typography.titleLarge,
                     fontSize = 16.sp,
                     color = if (selectedDate == day) selectedDayTextColor else dayNumTextColor,
-                    /*modifier = (if (selectedDate == day) Modifier
-                        .fillMaxWidth()
-                        .drawBehind {
-                            drawRoundRect(
-                                color = selectedDayBackgroundColor,
-                                cornerRadius = CornerRadius(50.0f,50.0f),
-                                size =  Size(this.size.width,this.size.width)
-                            )
-                        }
-                        .padding(top = 12.dp)
-
-                    else Modifier
-                        .fillMaxWidth()
-                        .drawBehind {
-                            drawRoundRect(
-                                color = selectedDayTextColor,
-                                cornerRadius = CornerRadius(50.0f,50.0f),
-                                size =  Size(this.size.width,this.size.width)
-                            )
-                        }
-                        .padding(top = 12.dp)
-                        )
-                        .clickable(
-                        interactionSource = interactionSource,
-                        indication = null
-                    ) {
-                        onSelectDay(day)
-                    }*/
                     textAlign = TextAlign.Center
                 )
             }
@@ -355,6 +329,8 @@ fun WeekDaysHeader(
 object SingleRowCalendarDefaults {
     val Blue600: Color = Color(0xFF8C2AC8)
     val Blue601: Color = Color(0x79CA93FF)
+/*    val Blue600: Color = Color(0xFF222ECE)
+    val Blue601: Color = Color(0x79385ACC)*/
     val Grey500: Color = Color(0xFF667085)
 }
 

@@ -1,19 +1,16 @@
 package com.example.timetable.screens
 
-import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -22,25 +19,39 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
-import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
-import coil.size.Size
 import com.example.testproj.LessonCard
-import com.example.timetable.LessonExample
 import com.example.timetable.data.domain.model.Day
-import com.example.timetable.data.domain.model.Lesson
 import com.example.timetable.presentation.TimetableViewModel
 import com.mrerror.singleRowCalendar.SingleRowCalendar
 import java.util.Date
 import com.example.timetable.R
+import com.example.timetable.User
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
+import java.text.SimpleDateFormat
+import java.util.Locale
 
+class Week(var parity : Int, var number : Int)
+
+fun calculateWeekParity(startWeek: String, currentDate: Date): Week {
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+    val startDate = dateFormat.parse(startWeek) ?: return Week(0,0)
+
+    val diffInMillis = currentDate.time - startDate.time
+    val weeksBetween = (diffInMillis / (7 * 24 * 60 * 60 * 1000)).toInt()
+
+    return if (weeksBetween % 2 == 0) Week(0,weeksBetween) else Week(1,weeksBetween)
+}
+
+fun getDayIndex(date: Date): Int {
+    return if (date.day == 0) 6 else date.day - 1
+}
 
 @Composable
 fun ViewLessons(
@@ -48,80 +59,6 @@ fun ViewLessons(
 )
 {
     val state = viewModel.state.value
-    /*val lessons = mapOf(
-        0 to mapOf(
-            0 to listOf(
-                LessonExample("12:00","21:00","Пн","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            1 to listOf(
-                LessonExample("12:00","21:00","Вт","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            2 to listOf(
-                LessonExample("12:00","21:00","Ср","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            3 to listOf(
-                LessonExample("12:00","21:00","Чт","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            4 to listOf(
-                LessonExample("12:00","21:00","Пт","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            5 to listOf(
-                LessonExample("12:00","21:00","Сб","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            6 to listOf(
-                LessonExample("12:00","21:00","Вскр","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),),
-        1 to mapOf(
-            0 to listOf(
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            1 to listOf(
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            2 to listOf(
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            3 to listOf(
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            4 to listOf(
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            5 to listOf(
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),
-            6 to listOf(
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-                LessonExample("12:00","21:00","АИС","216*","Палехова О.И."),
-            ),)
-    )*/
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -136,7 +73,15 @@ fun ViewLessons(
                 selectedDayBackgroundColor = Color(0xFF8C2AC8)
             )
 
-            DayLessons(date = day.value, days = state.timetable)
+            val filtered = state.universities.filter { it.id == User.idUniversity}
+            if (filtered.isNotEmpty()){
+                val start_week = filtered.first().start_week
+                DayLessons(date = day.value, days = state.timetable, start_week = start_week)
+            }
+            else
+            {
+                CircularProgressIndicator(color = Blue600,modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 400.dp, start = 20.dp, end = 20.dp))
+            }
 
         }
         else if (viewModel.state.value.isLoading)
@@ -169,31 +114,29 @@ fun ViewLessons(
 
 
 @Composable
-fun DayLessons(date: Date, days: List<Day>) {
-    val formatday : Int
-    if (date.day == 0) formatday = 6
-    else formatday = date.day - 1
+fun DayLessons(date: Date, days: List<Day>, start_week: String) {
+    val dayIndex = getDayIndex(date) // Correct day index, where Monday = 0
+    var week = calculateWeekParity(start_week, date) // Determine week parity
 
-    val filtered = days.filter { it.day == formatday}
-    if (filtered.isNotEmpty()){
+    if (dayIndex == 0) {
+        if (week.parity > 0) week.parity = week.parity - 1 else week.parity = week.parity + 1
+        week.number += 4
+    }
+    else week.number += 3
+
+    Text(text = "${week.number}-я неделя, " + if (week.parity > 0) "четная" else "нечетная", modifier = Modifier.fillMaxWidth().offset(y = -92.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleSmall, color = if (week.number == 5 || week.number == 10 || week.number == 15) Color.Red else Color.Gray)
+
+    // Filter lessons for the current day and week parity
+    val filtered = days.filter { it.day == dayIndex && it.week == week.parity}
+
+    if (filtered.isNotEmpty()) {
         val lessons = filtered.first().lessons
         LazyColumn {
-            items(lessons){ lesson ->
+            items(lessons) { lesson ->
                 LessonCard(lesson)
             }
         }
-    }
-    else
-    {
+    } else {
         Text(text = "Пар нет")
     }
-
-
-/*    Column(modifier = Modifier.verticalScroll(state = ScrollState(1))) {
-        for (lesson in lessons.get(day)) {
-            LessonCard(lesson)
-        }
-    }*/
-
-
 }

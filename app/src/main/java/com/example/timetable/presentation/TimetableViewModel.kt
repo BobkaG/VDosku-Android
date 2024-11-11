@@ -30,58 +30,125 @@ class TimetableViewModel @Inject constructor(
     val state: State<TimetableState> = _state
 
     init {
-        getTimetable(User.userGroup)
-        getUnivesities()
-        getUnivesityDetail(User.idUniversity)
+        getTimetable(User.userGroup, User.idUniversity)
         //savedStateHandle.get<String>(Constants.PARAM_GROUP)?.let{code -> getTimetable("О713Б")}
     }
 
-    private fun getTimetable(code: String)
+    /*private fun getTimetable(code: String, id: Long)
     {
-        getTimetableUseCase(code).onEach { result ->
-            when(result){
-                is Resource.Success<List<Day>> -> {
-                    _state.value = TimetableState(timetable = result.data ?: emptyList())
-                }
-                is Resource.Error<List<Day>> -> {
-                    _state.value = TimetableState(error = result.message ?: "An unexpected error occured")
-                }
-                is Resource.Loading<List<Day>> -> {
-                    _state.value = TimetableState(isLoading = true)
-                }
-            }
-        }.launchIn(viewModelScope)
-    }
-    private fun getUnivesities()
-    {
+        val newstate = TimetableState()
         getUniversitiesUseCase().onEach { result ->
             when(result){
                 is Resource.Success<List<University>> -> {
-                    _state.value.universities= result.data?:emptyList()
+                    newstate.universities = result.data?:emptyList()
                 }
                 is Resource.Error<List<University>> -> {
-                    _state.value = TimetableState(error = result.message ?: "An unexpected error occured")
+                    newstate.error = result.message ?: "An unexpected error occured"
                 }
                 is Resource.Loading<List<University>> -> {
-                    _state.value = TimetableState(isLoading = true)
+                    newstate.isLoading = true
                 }
             }
         }.launchIn(viewModelScope)
-    }
-    private fun getUnivesityDetail(id: Long)
-    {
+
+        getTimetableUseCase(code).onEach { result ->
+            when(result){
+                is Resource.Success<List<Day>> -> {
+                    newstate.timetable = result.data ?: emptyList()
+                }
+                is Resource.Error<List<Day>> -> {
+                    newstate.error = result.message ?: "An unexpected error occured"
+                }
+                is Resource.Loading<List<Day>> -> {
+                    newstate.isLoading = true
+                }
+            }
+        }.launchIn(viewModelScope)
+
         getUniversityDetailUseCase(id).onEach { result ->
             when(result){
                 is Resource.Success<UniversityDetail> -> {
-                    _state.value.universityDetail= result.data
+                    newstate.universityDetail= result.data
                 }
                 is Resource.Error<UniversityDetail> -> {
-                    _state.value = TimetableState(error = result.message ?: "An unexpected error occured")
+                    newstate.error = result.message ?: "An unexpected error occured"
                 }
                 is Resource.Loading<UniversityDetail> -> {
-                    _state.value = TimetableState(isLoading = true)
+                    newstate.isLoading = true
+                }
+            }
+        }.launchIn(viewModelScope)
+
+        _state.value = newstate
+    }*/
+
+    private fun getTimetable(code: String, id: Long) {
+        // Устанавливаем статус загрузки вначале
+        _state.value = _state.value.copy(isLoading = true)
+
+        // Загружаем список университетов
+        getUniversitiesUseCase().onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        universities = result.data ?: emptyList(),
+                        isLoading = false
+                    )
+                }
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(
+                        error = result.message ?: "An unexpected error occurred",
+                        isLoading = false
+                    )
+                }
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
+
+        // Загружаем расписание
+        getTimetableUseCase(code).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        timetable = result.data ?: emptyList(),
+                        isLoading = false
+                    )
+                }
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(
+                        error = result.message ?: "An unexpected error occurred",
+                        isLoading = false
+                    )
+                }
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
+
+        // Загружаем детали университета
+        getUniversityDetailUseCase(id).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        universityDetail = result.data,
+                        isLoading = false
+                    )
+                }
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(
+                        error = result.message ?: "An unexpected error occurred",
+                        isLoading = false
+                    )
+                }
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(isLoading = true)
                 }
             }
         }.launchIn(viewModelScope)
     }
+
+
 }
