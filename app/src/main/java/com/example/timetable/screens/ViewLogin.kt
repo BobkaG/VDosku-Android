@@ -21,16 +21,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.timetable.R
 import com.example.timetable.data.User
+import com.example.timetable.presentation.TimetableViewModel
+import com.example.timetable.presentation.UniversityViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun ViewLogin(navController: NavController) {
+fun ViewLogin(navController: NavController,     viewModel: UniversityViewModel = hiltViewModel()) {
     var selectedUniversity by remember { mutableStateOf("БГТУ \"Военмех\"") }
     var selectedGroup by remember { mutableStateOf("О713Б") }
+    val state = viewModel.state.value
+
 
     Column(
         modifier = Modifier
@@ -42,8 +47,8 @@ fun ViewLogin(navController: NavController) {
     ) {
         var expandedUniversity by remember { mutableStateOf(false) }
         var expandedGroup by remember { mutableStateOf(false) }
-        val universities = listOf("БГТУ \"Военмех\"", "МГУ", "СПбГУ", "МИФИ", "ВШЭ")
-        val groups = listOf("О713Б", "О714Б", "О715Б", "О716Б", "О717Б") // Пример списка групп
+        val universities = state.universities
+        val groups = state.universityDetail?.groups // Пример списка групп
 
         // Заголовок
         Text(
@@ -66,7 +71,7 @@ fun ViewLogin(navController: NavController) {
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .clickable { expandedUniversity = !expandedUniversity }
+                .clickable { if (!expandedGroup) expandedUniversity = !expandedUniversity }
                 .background(Color.White)
                 .padding(16.dp)
         ) {
@@ -94,14 +99,14 @@ fun ViewLogin(navController: NavController) {
             if (expandedUniversity) {
                 DropdownMenu(
                     expanded = expandedUniversity,
-                    onDismissRequest = {expandedGroup = !expandedGroup},
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                    onDismissRequest = {expandedUniversity = !expandedUniversity},
+                    modifier = Modifier.fillMaxWidth(0.5f).padding(top = 8.dp)
                 ) {
                     universities.forEach { university ->
                         DropdownMenuItem(
-                            text = { Text(university) },
+                            text = { Text(university.name) },
                             onClick = {
-                                selectedUniversity = university
+                                selectedUniversity = university.name
                                 expandedUniversity = false
                             }
                         )
@@ -116,7 +121,7 @@ fun ViewLogin(navController: NavController) {
                 .fillMaxWidth()
                 .padding(bottom = 32.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .clickable { expandedGroup = !expandedGroup }
+                .clickable { if (!expandedUniversity) expandedGroup = !expandedGroup }
                 .background(Color.White)
                 .padding(16.dp)
         ) {
@@ -145,9 +150,9 @@ fun ViewLogin(navController: NavController) {
                 DropdownMenu(
                     onDismissRequest = {expandedGroup = !expandedGroup},
                     expanded = expandedGroup,
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                    modifier = Modifier.fillMaxWidth(0.5f)
                 ) {
-                    groups.forEach { group ->
+                    groups?.forEach { group ->
                         DropdownMenuItem(
                             text = { Text(group) },
                             onClick = {
@@ -165,6 +170,7 @@ fun ViewLogin(navController: NavController) {
             onClick = {
                 User.isSigned.value = true
                 User.userGroup = selectedGroup
+                User.nameUniversity = state.universityDetail!!.name
                 navController.navigate("home")
                       },
             shape = RoundedCornerShape(24.dp),

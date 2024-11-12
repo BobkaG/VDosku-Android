@@ -1,8 +1,6 @@
 package com.example.timetable.screens
 
-import android.graphics.BlendModeColorFilter
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,10 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -41,15 +36,10 @@ import com.mrerror.singleRowCalendar.SingleRowCalendar
 import java.util.Date
 import com.example.timetable.R
 import com.example.timetable.data.User
+import com.example.timetable.presentation.UniversityViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerScope
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
-import kotlinx.coroutines.coroutineScope
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Locale
 
 class Week(var parity : Int, var number : Int)
@@ -71,17 +61,19 @@ fun getDayIndex(date: Date): Int {
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ViewLessons(
-    viewModel: TimetableViewModel = hiltViewModel()
+    timetableViewModel: TimetableViewModel = hiltViewModel(),
+    universityViewModel: UniversityViewModel = hiltViewModel(),
 )
 {
-    val state = viewModel.state.value
+    val timetableState = timetableViewModel.state.value
+    val universityState = universityViewModel.state.value
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         val day = remember { mutableStateOf(Date()) }
 
-        if (viewModel.state.value.timetable.isNotEmpty()) {
+        if (timetableViewModel.state.value.timetable.isNotEmpty()) {
             SingleRowCalendar(
                 onSelectedDayChange = { selectedDate -> // верхний календарь
                     day.value = selectedDate
@@ -89,10 +81,10 @@ fun ViewLessons(
                 selectedDayBackgroundColor = Color(0xFF8C2AC8)
             )
 
-            val filtered = state.universities.filter { it.id == User.idUniversity}
+            val filtered = universityState.universities.filter { it.id == User.idUniversity}
             if (filtered.isNotEmpty()){
                 val start_week = filtered.first().start_week
-                LessonsList(date = day.value, days = state.timetable, start_week = start_week)
+                LessonsList(date = day.value, days = timetableState.timetable, start_week = start_week)
 
             }
 
@@ -102,7 +94,7 @@ fun ViewLessons(
             }
 
         }
-        else if (viewModel.state.value.isLoading)
+        else if (timetableViewModel.state.value.isLoading)
             CircularProgressIndicator(color = Blue600,modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 400.dp, start = 20.dp, end = 20.dp))
         else {
             val context = LocalContext.current
@@ -120,7 +112,7 @@ fun ViewLessons(
 
             )
             Text(
-                viewModel.state.value.error,
+                timetableViewModel.state.value.error,
                 modifier = Modifier.padding(top = 10.dp,start = 20.dp, end = 20.dp)
             )
         }
