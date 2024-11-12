@@ -27,7 +27,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -53,10 +53,6 @@ dependencies {
     // optional - RxJava2 support
     implementation("androidx.datastore:datastore-preferences-rxjava2:1.1.1")
 
-    // optional - RxJava3 support
-    implementation("androidx.datastore:datastore-preferences-rxjava3:1.1.1")
-    // optional - RxJava2 support
-    implementation("androidx.datastore:datastore-rxjava2:1.1.1")
 
     // optional - RxJava3 support
     implementation("androidx.datastore:datastore-rxjava3:1.1.1")
@@ -96,6 +92,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") // Убедитесь, что используете актуальную версию
     implementation ("io.coil-kt:coil-compose:2.1.0")
     implementation ("io.coil-kt:coil-gif:2.1.0")
+    implementation("androidx.compose.material:material:1.8.0-alpha04")
+    implementation ("com.google.accompanist:accompanist-pager:0.28.0") // Замените на актуальную версию
+
+
 }
 
 kapt {

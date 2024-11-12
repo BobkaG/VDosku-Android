@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
@@ -25,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.timetable.data.User
 import com.example.timetable.navigation.BottomItem
 import com.example.timetable.screens.ViewLessons
 import com.example.timetable.screens.ViewLogin
@@ -61,6 +63,7 @@ fun Show() {
         containerColor = Color.Transparent,
         bottomBar =
         {
+            if (User.isSigned.value)
             NavigationBar(
                 containerColor = Color.Transparent
             ) {
@@ -93,7 +96,7 @@ fun Show() {
         modifier = Modifier.fillMaxSize().paint(painter = painterResource(id = R.drawable.bg), contentScale = ContentScale.FillBounds)
     )
     {
-        NavHost(navController = navController, startDestination = "home")
+        NavHost(navController = navController, startDestination = if (User.isSigned.value) "home" else "login")
         {
             composable("home")
             {
@@ -109,27 +112,8 @@ fun Show() {
             }
             composable("login")
             {
-                ViewLogin()
+                ViewLogin(navController)
             }
         }
-    }
-}
-
-
-
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TimetableTheme {
-        Greeting("Android")
     }
 }

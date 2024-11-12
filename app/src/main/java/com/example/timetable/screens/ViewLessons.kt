@@ -1,6 +1,8 @@
 package com.example.timetable.screens
 
+import android.graphics.BlendModeColorFilter
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,8 +20,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,8 +41,15 @@ import com.mrerror.singleRowCalendar.SingleRowCalendar
 import java.util.Date
 import com.example.timetable.R
 import com.example.timetable.data.User
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.PagerScope
+import com.google.accompanist.pager.PagerState
+import com.google.accompanist.pager.rememberPagerState
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
+import kotlinx.coroutines.coroutineScope
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 class Week(var parity : Int, var number : Int)
@@ -53,6 +68,7 @@ fun getDayIndex(date: Date): Int {
     return if (date.day == 0) 6 else date.day - 1
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ViewLessons(
     viewModel: TimetableViewModel = hiltViewModel()
@@ -76,8 +92,10 @@ fun ViewLessons(
             val filtered = state.universities.filter { it.id == User.idUniversity}
             if (filtered.isNotEmpty()){
                 val start_week = filtered.first().start_week
-                DayLessons(date = day.value, days = state.timetable, start_week = start_week)
+                LessonsList(date = day.value, days = state.timetable, start_week = start_week)
+
             }
+
             else
             {
                 CircularProgressIndicator(color = Blue600,modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 400.dp, start = 20.dp, end = 20.dp))
@@ -111,10 +129,8 @@ fun ViewLessons(
     }
 
 
-
-
 @Composable
-fun DayLessons(date: Date, days: List<Day>, start_week: String) {
+fun LessonsList(date: Date, days: List<Day>, start_week: String) {
     val dayIndex = getDayIndex(date) // Correct day index, where Monday = 0
     var week = calculateWeekParity(start_week, date) // Determine week parity
 
@@ -123,6 +139,7 @@ fun DayLessons(date: Date, days: List<Day>, start_week: String) {
         week.number += 4
     }
     else week.number += 3
+
 
     Text(text = "${week.number}-я неделя, " + if (week.parity > 0) "четная" else "нечетная", modifier = Modifier.fillMaxWidth().offset(y = -92.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleSmall, color = if (week.number == 5 || week.number == 10 || week.number == 15) Color.Red else Color.Gray)
 
@@ -137,6 +154,8 @@ fun DayLessons(date: Date, days: List<Day>, start_week: String) {
             }
         }
     } else {
-        Text(text = "Пар нет")
+        Image(painter = painterResource(R.drawable.chill3), contentDescription = "", alignment = Alignment.Center, modifier = Modifier.padding(40.dp).clip(shape = RoundedCornerShape(10.dp)))
+        Text(text = "Пар нет \n Самое время поспать...", modifier = Modifier.fillMaxWidth().offset(y = -80.dp),textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyLarge)
+
     }
 }

@@ -1,6 +1,9 @@
 package com.example.timetable.data
 
+import androidx.compose.runtime.mutableStateOf
+
 object User {
+    var isSigned = mutableStateOf(false)
     const val idUniversity = 7232859143894339584
-    const val userGroup = "О713Б"
+    var userGroup = "О713Б"
 }

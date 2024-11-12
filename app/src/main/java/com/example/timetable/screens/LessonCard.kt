@@ -142,7 +142,7 @@ fun LessonCard(
                 ) {
 
                     Text(
-                        text = if (lesson.audience.isNullOrBlank()) "" else lesson.audience,//lesson.classroom,
+                        text = if (lesson.audience.isNullOrBlank()) "" else lesson.audience.slice(0..(lesson.audience.length-2)),//lesson.classroom,
                         style = MaterialTheme.typography.titleMedium,
                         fontSize = 11.sp,
                         color = Color.DarkGray,
