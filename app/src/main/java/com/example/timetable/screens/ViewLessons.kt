@@ -1,5 +1,7 @@
 package com.example.timetable.screens
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,9 +40,27 @@ import com.example.timetable.R
 import com.example.timetable.data.User
 import com.example.timetable.presentation.UniversityViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
 import java.text.SimpleDateFormat
 import java.util.Locale
+
+// Функция для получения списка дней
+fun getDays(context: Context): List<Day> {
+    val sharedPreferences: SharedPreferences = context.getSharedPreferences("UserData", Context.MODE_PRIVATE)
+    val json = sharedPreferences.getString("days", null)
+
+    // Если данные не найдены, возвращаем пустой список
+    if (json.isNullOrEmpty()) {
+        return emptyList()
+    }
+
+    // Десериализуем JSON строку в список объектов Day
+    val gson = Gson()
+    val type = object : TypeToken<List<Day>>() {}.type
+    return gson.fromJson(json, type)
+}
 
 class Week(var parity : Int, var number : Int)
 
@@ -72,8 +92,10 @@ fun ViewLessons(
         modifier = Modifier.fillMaxSize()
     ) {
         val day = remember { mutableStateOf(Date()) }
+        val days = getDays(context = LocalContext.current)
+        val universities = universityViewModel.getLocalUniversities(context = LocalContext.current)
 
-        if (timetableViewModel.state.value.timetable.isNotEmpty()) {
+        if (days.isNotEmpty()) {
             SingleRowCalendar(
                 onSelectedDayChange = { selectedDate -> // верхний календарь
                     day.value = selectedDate
@@ -81,10 +103,10 @@ fun ViewLessons(
                 selectedDayBackgroundColor = Color(0xFF8C2AC8)
             )
 
-            val filtered = universityState.universities.filter { it.id == User.idUniversity}
+            val filtered = universities.filter { it.id == User.idUniversity}
             if (filtered.isNotEmpty()){
                 val start_week = filtered.first().start_week
-                LessonsList(date = day.value, days = timetableState.timetable, start_week = start_week)
+                LessonsList(date = day.value, days = days, start_week = start_week)
 
             }
 

@@ -94,7 +94,8 @@ dependencies {
     implementation ("io.coil-kt:coil-gif:2.1.0")
     implementation("androidx.compose.material:material:1.8.0-alpha04")
     implementation ("com.google.accompanist:accompanist-pager:0.28.0") // Замените на актуальную версию
-
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
 
 }
 

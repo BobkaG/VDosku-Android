@@ -1,6 +1,9 @@
 package com.example.timetable
 
 import android.annotation.SuppressLint
+import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,10 +53,29 @@ class MainActivity() : ComponentActivity() {
     }
 }}
 
+fun getUserData(context: Context): Map<String, Any?> {
+    val sharedPreferences: SharedPreferences = context.getSharedPreferences("UserData", Context.MODE_PRIVATE)
+    val group = sharedPreferences.getString("userGroup", "")
+    val university = sharedPreferences.getString("nameUniversity", "")
+    val isSigned = sharedPreferences.getBoolean("isSigned", false)
+    return mapOf(
+        "userGroup" to group,
+        "universityName" to university,
+        "isSigned" to isSigned
+    )
+}
+
+private fun initializeUserData(context: Context) {
+    val userData = getUserData(context)
+    User.userGroup = userData["userGroup"] as? String ?: ""
+    User.nameUniversity = userData["nameUniversity"] as? String ?: ""
+    User.isSigned.value = userData["isSigned"] as? Boolean ?: false
+}
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun Show() {
-
+    initializeUserData(LocalContext.current)
     val navController = rememberNavController()
     val listItems = listOf(
         BottomItem.HomeScreen,

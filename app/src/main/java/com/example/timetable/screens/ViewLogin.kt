@@ -1,5 +1,7 @@
 package com.example.timetable.screens
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -27,15 +30,23 @@ import com.example.timetable.R
 import com.example.timetable.data.User
 import com.example.timetable.presentation.TimetableViewModel
 import com.example.timetable.presentation.UniversityViewModel
+import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
 
+fun saveUserData(context: Context, group: String, university: String, isSigned: Boolean) {
+    val sharedPreferences: SharedPreferences = context.getSharedPreferences("UserData", Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+    editor.putString("userGroup", group)
+    editor.putString("nameUniversity", university)
+    editor.putBoolean("isSigned", isSigned)
+    editor.apply()
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ViewLogin(navController: NavController,     viewModel: UniversityViewModel = hiltViewModel()) {
-    var selectedUniversity by remember { mutableStateOf("БГТУ \"Военмех\"") }
+    var selectedUniversity by remember { mutableStateOf("БГТУ \"ВОЕНМЕХ\"") }
     var selectedGroup by remember { mutableStateOf("О713Б") }
     val state = viewModel.state.value
-
 
     Column(
         modifier = Modifier
@@ -47,10 +58,9 @@ fun ViewLogin(navController: NavController,     viewModel: UniversityViewModel =
     ) {
         var expandedUniversity by remember { mutableStateOf(false) }
         var expandedGroup by remember { mutableStateOf(false) }
-        val universities = state.universities
+        val universities = viewModel.getLocalUniversities(context = LocalContext.current)
         val groups = state.universityDetail?.groups // Пример списка групп
 
-        // Заголовок
         Text(
             text = "Ваше расписание",
             fontSize = 24.sp,
@@ -71,7 +81,7 @@ fun ViewLogin(navController: NavController,     viewModel: UniversityViewModel =
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .clickable { if (!expandedGroup) expandedUniversity = !expandedUniversity }
+                .clickable {expandedUniversity = !expandedUniversity }
                 .background(Color.White)
                 .padding(16.dp)
         ) {
@@ -121,7 +131,7 @@ fun ViewLogin(navController: NavController,     viewModel: UniversityViewModel =
                 .fillMaxWidth()
                 .padding(bottom = 32.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .clickable { if (!expandedUniversity) expandedGroup = !expandedGroup }
+                .clickable {expandedGroup = !expandedGroup }
                 .background(Color.White)
                 .padding(16.dp)
         ) {
@@ -141,7 +151,7 @@ fun ViewLogin(navController: NavController,     viewModel: UniversityViewModel =
                     style = MaterialTheme.typography.bodyLarge
                 )
                 ExposedDropdownMenuDefaults.TrailingIcon(
-                    expanded = expandedUniversity
+                    expanded = expandedGroup
                 )
             }
 
@@ -168,9 +178,15 @@ fun ViewLogin(navController: NavController,     viewModel: UniversityViewModel =
         // Кнопка "Далее"
         Button(
             onClick = {
-                User.isSigned.value = true
+/*                User.isSigned.value = true
                 User.userGroup = selectedGroup
-                User.nameUniversity = state.universityDetail!!.name
+                User.nameUniversity = state.universityDetail!!.name*/
+                saveUserData(
+                    context = navController.context,
+                    group = selectedGroup,
+                    university = selectedUniversity,
+                    isSigned = true
+                )
                 navController.navigate("home")
                       },
             shape = RoundedCornerShape(24.dp),
