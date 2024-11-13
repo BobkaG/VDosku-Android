@@ -76,7 +76,7 @@ fun Logout(context: Context, group: String, university: String, isSigned: Boolea
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun ViewProfile(navController: NavController) {
+fun ViewProfile(navController: NavController, viewModel: UniversityViewModel = hiltViewModel()) {
     initializeUserData(navController.context)
     Column(
         modifier = Modifier
@@ -86,6 +86,11 @@ fun ViewProfile(navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val groups = viewModel.state.value.universityDetail?.groups // Пример списка групп
+        var expandedGroup by remember { mutableStateOf(false) }
+        var selectedGroup by remember { mutableStateOf(User.userGroup) }
+
+
 
         Image(painter = painterResource(R.drawable.person_fill_2), contentDescription = "", modifier = Modifier.padding(bottom = 32.dp))
 
@@ -116,12 +121,12 @@ fun ViewProfile(navController: NavController) {
             }
         }
 
-        // Поле выбора группы с кастомным Box
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 32.dp)
                 .clip(RoundedCornerShape(16.dp))
+                .clickable {expandedGroup = !expandedGroup }
                 .background(Color.White)
                 .padding(16.dp)
         ) {
@@ -135,11 +140,40 @@ fun ViewProfile(navController: NavController) {
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
-                    text = User.userGroup,
+                    text = selectedGroup,
                     modifier = Modifier.weight(1f),
                     color = Color.Black,
                     style = MaterialTheme.typography.bodyLarge
                 )
+                ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expandedGroup
+                )
+            }
+
+            // Выпадающий список
+            if (expandedGroup) {
+                DropdownMenu(
+                    onDismissRequest = {expandedGroup = !expandedGroup},
+                    expanded = expandedGroup,
+                    modifier = Modifier.fillMaxWidth(0.5f),
+                ) {
+                    groups?.forEach { group ->
+                        DropdownMenuItem(
+                            text = { Text(group) },
+                            onClick = {
+                                selectedGroup = group
+                                expandedGroup = false
+                                saveUserData(
+                                    context = navController.context,
+                                    group = selectedGroup,
+                                    university = User.nameUniversity,
+                                    isSigned = true
+                                )
+                                saveDays(context = navController.context,emptyList())
+                            }
+                        )
+                    }
+                }
             }
         }
 

@@ -13,6 +13,7 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -48,7 +49,8 @@ fun DatePickerModal(
     selectedDate: Date
 ) {
     // Синхронизируем начальное состояние DatePicker с выбранной датой
-    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDate.time)
+    val datePickerState = rememberDatePickerState(yearRange = 2024..2025,initialSelectedDateMillis = selectedDate.time)
+    // Устанавливаем дату начала (2 сентября 2024)
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
@@ -64,7 +66,7 @@ fun DatePickerModal(
             TextButton(onClick = onDismiss) {
                 Text("Отмена")
             }
-        }
+        },
     ) {
         DatePicker(
             state = datePickerState,
@@ -77,6 +79,8 @@ fun DatePickerModal(
         )
     }
 }
+
+
 
 @Composable
 fun SingleRowCalendar(
