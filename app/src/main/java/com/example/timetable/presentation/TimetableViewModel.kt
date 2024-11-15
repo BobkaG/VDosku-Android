@@ -17,8 +17,10 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.util.Date
 import javax.inject.Inject
 
 fun saveDays(context: Context, days: List<Day>) {
@@ -71,11 +73,19 @@ private fun initializeUserData(context: Context) {
 @HiltViewModel
 class TimetableViewModel @Inject constructor(
     private val getTimetableUseCase: GetTimetableUseCase,
-    @ApplicationContext private val context: Context // Контекст приложения
+    @ApplicationContext private val context: Context, // Контекст приложения
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel()
 {
+    private val _selectedDay = savedStateHandle.getStateFlow("selectedDay", Date())
+    val selectedDay: StateFlow<Date> get() = _selectedDay
+
     private val _state = mutableStateOf(TimetableState())
     val state: State<TimetableState> = _state
+
+    fun setSelectedDay(day: Date) {
+        savedStateHandle["selectedDay"] = day
+    }
 
     init {
         initializeUserData(context = context)

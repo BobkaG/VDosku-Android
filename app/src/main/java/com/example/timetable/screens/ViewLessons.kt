@@ -3,6 +3,9 @@ package com.example.timetable.screens
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,10 +15,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.ImageDecoderDecoder
@@ -38,6 +50,7 @@ import com.mrerror.singleRowCalendar.SingleRowCalendar
 import java.util.Date
 import com.example.timetable.R
 import com.example.timetable.data.User
+import com.example.timetable.data.domain.model.Lesson
 import com.example.timetable.presentation.UniversityViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.gson.Gson
@@ -45,6 +58,7 @@ import com.google.gson.reflect.TypeToken
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
 import java.text.SimpleDateFormat
 import java.util.Locale
+
 
 // Функция для получения списка дней
 fun getDays(context: Context): List<Day> {
@@ -83,68 +97,76 @@ fun getDayIndex(date: Date): Int {
 fun ViewLessons(
     timetableViewModel: TimetableViewModel = hiltViewModel(),
     universityViewModel: UniversityViewModel = hiltViewModel(),
-)
-{
-    val timetableState = timetableViewModel.state.value
-    val universityState = universityViewModel.state.value
+    navController: NavController,
+    onLessonClick: (Lesson, Date) -> Unit
+) {
 
-    Column(
+    Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        val day = remember { mutableStateOf(Date()) }
-        val days = getDays(context = LocalContext.current)
-        val universities = universityViewModel.getLocalUniversities(context = LocalContext.current)
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            val day = timetableViewModel.selectedDay.collectAsState().value
 
-        if (days.isNotEmpty()) {
-            SingleRowCalendar(
-                onSelectedDayChange = { selectedDate -> // верхний календарь
-                    day.value = selectedDate
-                },
-                selectedDayBackgroundColor = Color(0xFF8C2AC8)
-            )
+            val days = getDays(context = LocalContext.current)
+            val universities = universityViewModel.getLocalUniversities(context = LocalContext.current)
 
-            val filtered = universities.filter { it.id == User.idUniversity}
-            if (filtered.isNotEmpty()){
-                val start_week = filtered.first().start_week
-                LessonsList(date = day.value, days = days, start_week = start_week)
-
-            }
-
-            else
-            {
-                CircularProgressIndicator(color = Blue600,modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 400.dp, start = 20.dp, end = 20.dp))
-            }
-
-        }
-        else if (timetableViewModel.state.value.isLoading)
-            CircularProgressIndicator(color = Blue600,modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 400.dp, start = 20.dp, end = 20.dp))
-        else {
-            val context = LocalContext.current
-            val imageLoader = ImageLoader.Builder(context)
-                .components {
-                    add(ImageDecoderDecoder.Factory())
+            if (days.isNotEmpty()) {
+                SingleRowCalendar(
+                    onSelectedDayChange = { selectedDate ->
+                        timetableViewModel.setSelectedDay(selectedDate)
+                    },
+                    selectedDayBackgroundColor = Color(0xFF8C2AC8)
+                )
+                val filtered = universities.filter { it.id == User.idUniversity }
+                if (filtered.isNotEmpty()) {
+                    val start_week = filtered.first().start_week
+                    LessonsList(date = day, days = days, start_week = start_week, navController, onLessonClick)
+                } else {
+                    CircularProgressIndicator(
+                        color = Blue600,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                            .padding(top = 400.dp, start = 20.dp, end = 20.dp)
+                    )
                 }
-                .build()
-            Image(
-                painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(context).data(data = R.drawable.nointernet).build(), imageLoader = imageLoader
-                ),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth().padding(top = 350.dp).size(70.dp) // Устанавливает размер изображения
-
-            )
-            Text(
-                timetableViewModel.state.value.error,
-                modifier = Modifier.padding(top = 10.dp,start = 20.dp, end = 20.dp)
-            )
+            } else if (timetableViewModel.state.value.isLoading) {
+                CircularProgressIndicator(
+                    color = Blue600,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                        .padding(top = 400.dp, start = 20.dp, end = 20.dp)
+                )
+            } else {
+                val context = LocalContext.current
+                val imageLoader = ImageLoader.Builder(context)
+                    .components {
+                        add(ImageDecoderDecoder.Factory())
+                    }
+                    .build()
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(context).data(data = R.drawable.nointernet).build(),
+                        imageLoader = imageLoader
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 350.dp)
+                        .size(70.dp)
+                )
+                Text(
+                    timetableViewModel.state.value.error,
+                    modifier = Modifier.padding(top = 10.dp, start = 20.dp, end = 20.dp)
+                )
+            }
         }
-    }
 
     }
+}
 
 
 @Composable
-fun LessonsList(date: Date, days: List<Day>, start_week: String) {
+fun LessonsList(date: Date, days: List<Day>, start_week: String, navController: NavController, onLessonClick: (Lesson, Date) -> Unit) {
     val dayIndex = getDayIndex(date) // Correct day index, where Monday = 0
     var week = calculateWeekParity(start_week, date) // Determine week parity
 
@@ -162,9 +184,9 @@ fun LessonsList(date: Date, days: List<Day>, start_week: String) {
 
     if (filtered.isNotEmpty()) {
         val lessons = filtered.first().lessons
-        LazyColumn {
+        LazyColumn(modifier = Modifier) {
             items(lessons) { lesson ->
-                LessonCard(lesson)
+                LessonCard(lesson,onClick = onLessonClick, date = date)
             }
         }
     } else {

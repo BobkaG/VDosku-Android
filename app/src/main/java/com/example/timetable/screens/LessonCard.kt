@@ -1,5 +1,7 @@
 package com.example.testproj
 
+import android.os.SystemClock
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,6 +10,9 @@ import androidx.compose.material3.CardColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -20,10 +25,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.example.timetable.R
 import com.example.timetable.data.domain.model.Lesson
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 
@@ -41,7 +48,8 @@ fun formatTime(time: String): String {
 @Composable
 fun LessonCard(
     lesson: Lesson,
-    modifier: Modifier = Modifier
+    date: Date,
+    onClick: (Lesson,Date) -> Unit
 ) {
     Card(
         colors = CardColors(
@@ -55,12 +63,17 @@ fun LessonCard(
             .fillMaxWidth()
             .height(120.dp)
             .padding(vertical = 5.dp, horizontal = 20.dp)
-            .shadow(elevation = 10.dp)
-
-        ,
+            .shadow(elevation = 10.dp),
     ) {
+        var lastClickTime = remember { mutableLongStateOf(0L) }
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().clickable {
+                val currentTime = SystemClock.elapsedRealtime()
+                if (currentTime - lastClickTime.longValue > 1000L) { // Проверяем, прошло ли более 1000 миллисекунд с последнего нажатия
+                    lastClickTime.longValue = currentTime // Обновляем время последнего нажатия
+                    onClick(lesson, date) // Вызываем обработчик нажатия
+                }
+            }
         ) {
 
             // Время пары

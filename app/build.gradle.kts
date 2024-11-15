@@ -96,6 +96,7 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-pager:0.28.0") // Замените на актуальную версию
     implementation("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 
 }
 
