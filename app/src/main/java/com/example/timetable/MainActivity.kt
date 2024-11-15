@@ -158,7 +158,7 @@ fun Show() {
             {
                 ViewLessons(navController = navController, onLessonClick = { lesson, date ->
                     saveLesson(context = navController.context, DateLesson(lesson,date))
-                    navController.navigate("lessonDetails/${lesson.id}&${date}")
+                    navController.navigate("lessonDetails/${lesson.id}&${date}"){launchSingleTop = true}
                 })
             }
             composable("search")

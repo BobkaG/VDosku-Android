@@ -57,6 +57,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.mrerror.singleRowCalendar.SingleRowCalendarDefaults.Blue600
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 
@@ -121,6 +122,7 @@ fun ViewLessons(
                 )
                 val filtered = universities.filter { it.id == User.idUniversity }
                 if (filtered.isNotEmpty()) {
+
                     val start_week = filtered.first().start_week
                     LessonsList(date = day, days = days, start_week = start_week, navController, onLessonClick)
                 } else {
@@ -164,8 +166,22 @@ fun ViewLessons(
     }
 }
 
+fun parseLessonTime(time: String, date: Date): Date {
+    val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    val lessonTime = timeFormat.parse(time) ?: return Date(0) // Возвращаем минимальную дату, если парсинг не удался
 
-@Composable
+    // Создаем полную дату для урока, объединив текущую дату и время урока
+    val calendar = Calendar.getInstance()
+    calendar.time = date
+    calendar.set(Calendar.HOUR_OF_DAY, lessonTime.hours)
+    calendar.set(Calendar.MINUTE, lessonTime.minutes)
+    calendar.set(Calendar.SECOND, lessonTime.seconds)
+    calendar.set(Calendar.MILLISECOND, 0)
+
+    return calendar.time
+}
+
+/*@Composable
 fun LessonsList(date: Date, days: List<Day>, start_week: String, navController: NavController, onLessonClick: (Lesson, Date) -> Unit) {
     val dayIndex = getDayIndex(date) // Correct day index, where Monday = 0
     var week = calculateWeekParity(start_week, date) // Determine week parity
@@ -179,19 +195,103 @@ fun LessonsList(date: Date, days: List<Day>, start_week: String, navController: 
 
     Text(text = "${week.number}-я неделя, " + if (week.parity > 0) "четная" else "нечетная", modifier = Modifier.fillMaxWidth().offset(y = -92.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleSmall, color = if (week.number == 5 || week.number == 10 || week.number == 15) Color.Red else Color.Gray)
 
-    // Filter lessons for the current day and week parity
-    val filtered = days.filter { it.day == dayIndex && it.week == week.parity}
+    val lessonsForDay = days.filter { it.day == dayIndex && it.week == week.parity }
+        .flatMap { it.lessons }
 
-    if (filtered.isNotEmpty()) {
-        val lessons = filtered.first().lessons
+    // Текущее время
+    val currentTime = Calendar.getInstance().time
+
+    // Находим ближайший урок среди уроков текущего дня
+    val nearestLesson = lessonsForDay.minByOrNull { lesson ->
+        val lessonTime = parseLessonTime(lesson.start) // Преобразуем время начала урока
+        val diff = lessonTime.time - currentTime.time
+        if (diff >= 0) diff else Long.MAX_VALUE // Учитываем только будущие пары
+    }
+
+    if (lessonsForDay.isNotEmpty()) {
         LazyColumn(modifier = Modifier) {
-            items(lessons) { lesson ->
-                LessonCard(lesson,onClick = onLessonClick, date = date)
+            items(lessonsForDay) { lesson ->
+                LessonCard(
+                    lesson = lesson,
+                    onClick = onLessonClick,
+                    date = date,
+                    isNearest = lesson == nearestLesson // Проверяем, является ли пара ближайшей
+                )
             }
         }
     } else {
         Image(painter = painterResource(R.drawable.chill3), contentDescription = "", alignment = Alignment.Center, modifier = Modifier.padding(40.dp).clip(shape = RoundedCornerShape(10.dp)))
         Text(text = "Пар нет \n Самое время поспать...", modifier = Modifier.fillMaxWidth().offset(y = -80.dp),textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyLarge)
 
+    }
+}*/
+
+@Composable
+fun LessonsList(
+    date: Date,
+    days: List<Day>,
+    start_week: String,
+    navController: NavController,
+    onLessonClick: (Lesson, Date) -> Unit
+) {
+    val dayIndex = getDayIndex(date) // Индекс текущего дня (Monday = 0)
+    var week = calculateWeekParity(start_week, date) // Определяем четность недели
+
+    if (dayIndex == 0) {
+        if (week.parity > 0) week.parity = week.parity - 1 else week.parity = week.parity + 1
+        week.number += 4
+    } else {
+        week.number += 3
+    }
+
+    Text(
+        text = "${week.number}-я неделя, " + if (week.parity > 0) "четная" else "нечетная",
+        modifier = Modifier.fillMaxWidth().offset(y = -92.dp),
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.titleSmall,
+        color = if (week.number == 5 || week.number == 10 || week.number == 15) Color.Red else Color.Gray
+    )
+
+    // Фильтруем уроки для текущего дня и недели
+    val lessonsForDay = days.filter { it.day == dayIndex && it.week == week.parity }
+        .flatMap { it.lessons }
+
+    // Текущее время
+    val currentTime = Calendar.getInstance().time
+
+    // Находим ближайший урок среди уроков текущего дня
+    // Находим текущую пару
+    val currentLesson = lessonsForDay.firstOrNull { lesson ->
+        val startTime = parseLessonTime(lesson.start, date)
+        val endTime = parseLessonTime(lesson.end, date)
+        startTime.before(currentTime) && endTime.after(currentTime)
+    }
+
+    if (lessonsForDay.isNotEmpty()) {
+        LazyColumn(modifier = Modifier) {
+            items(lessonsForDay) { lesson ->
+                LessonCard(
+                    lesson = lesson,
+                    onClick = onLessonClick,
+                    date = date,
+                    isNearest = lesson == currentLesson  // Проверяем, является ли урок ближайшим
+                )
+            }
+        }
+    } else {
+        Image(
+            painter = painterResource(R.drawable.chill3),
+            contentDescription = "",
+            alignment = Alignment.Center,
+            modifier = Modifier
+                .padding(40.dp)
+                .clip(shape = RoundedCornerShape(10.dp))
+        )
+        Text(
+            text = "Пар нет \n Самое время поспать...",
+            modifier = Modifier.fillMaxWidth().offset(y = -80.dp),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 }
