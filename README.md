@@ -24,7 +24,8 @@
 - Загружайте актуальное расписание и сохраняйте его для работы в оффлайн-режиме.  
 
 🎨 **Современный дизайн**:  
-- Построено на Jetpack Compose с элементами Material3 для минималистичного и приятного UI.  
+- Построено на Jetpack Compose с элементами Material3 для минималистичного и приятного UI.
+- Разработано по созданному в Figma дизайн-макету
 
 ---
 
@@ -49,6 +50,10 @@
     <td align="center" style="padding: 10px;">
       <img src="https://vscodeshift.gallerycdn.vsassets.io/extensions/vscodeshift/material-ui-snippets/3.3.8/1632893578939/Microsoft.VisualStudio.Services.Icons.Default" alt="Material Design" width="40"/><br>
       <b>Material Design</b>
+    </td>
+    <td align="center" style="padding: 10px;">
+      <img src="https://yoolk.ninja/wp-content/uploads/2021/11/Apps-Figma.png" alt="Figma" width="40"/><br>
+      <b>Figma</b>
     </td>
   </tr>
 </table>
